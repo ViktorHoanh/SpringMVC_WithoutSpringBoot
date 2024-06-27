@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias alias="Account" type="org.example.entity.Account"/>
+        <typeAlias alias="Employee" type="org.example.entity.Employee"/>
+        <typeAlias alias="Project" type="org.example.entity.Project"/>
+        <typeAlias alias="Team" type="org.example.entity.Team"/>
+        <typeAlias type="org.example.dto.EmployeeDTO" alias="EmployeeDTO"/>
+    </typeAliases>
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/miniproject?characterEncoding=UTF-8"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="AccountMapper.xml"/>
+        <mapper resource="EmployeeMapper.xml"/>
+        <mapper resource="ProjectMapper.xml"/>
+        <mapper resource="TeamMapper.xml"/>
+    </mappers>
+</configuration>

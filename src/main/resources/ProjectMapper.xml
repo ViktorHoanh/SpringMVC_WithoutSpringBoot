@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.dao.ProjectMapper">
+    <resultMap id="prjResult" type="Project">
+        <id property="projectID" column="projectID"/>
+        <result property="projectName" column="projectName"/>
+    </resultMap>
+    <select id="getAllProject" resultType="Project" resultMap="prjResult">
+        SELECT * FROM project
+    </select>
+
+    <select id="getProjectByID" resultType="Project" resultMap="prjResult">
+        SELECT * FROM project WHERE projectID = #{projectID}
+    </select>
+
+</mapper>

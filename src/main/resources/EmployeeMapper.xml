@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.dao.EmployeeMapper">
+    <resultMap id="empResult" type="Employee">
+        <id property="empID" column="empID"/>
+        <result property="empName" column="empName"/>
+        <result property="empGender" column="empGender"/>
+        <result property="empBirthday" column="empBirthday"/>
+        <result property="empPhone" column="empPhone"/>
+        <result property="empEmail" column="empEmail"/>
+        <result property="empAddress" column="empAddress"/>
+        <result property="empStartDate" column="empStartDate"/>
+        <result property="empStatus" column="empStatus"/>
+        <result property="createBy" column="createBy"/>
+        <result property="updateBy" column="updateBy"/>
+        <result property="createAt" column="createAt"/>
+        <result property="updateAt" column="updateAt"/>
+        <result property="teamID" column="teamID"/>
+        <result property="projectID" column="projectID"/>
+        <result property="isLeader" column="isLeader"/>
+    </resultMap>
+    <resultMap id="empDTOResult" type="EmployeeDTO">
+        <id property="empID" column="empID"/>
+        <result property="empName" column="empName"/>
+        <result property="empGender" column="empGender"/>
+        <result property="empBirthday" column="empBirthday"/>
+        <result property="empPhone" column="empPhone"/>
+        <result property="empEmail" column="empEmail"/>
+        <result property="empAddress" column="empAddress"/>
+        <result property="empStartDate" column="empStartDate"/>
+        <result property="empStatus" column="empStatus"/>
+        <result property="teamName" column="teamName"/>
+        <result property="projectName" column="projectName"/>
+        <result property="leaderName" column="leaderName"/>
+    </resultMap>
+    <select id="getAllEmployee" resultType="Employee" resultMap="empResult">
+        select * from Employee
+    </select>
+    <select id="getAllEmployeeDTO" resultType="EmployeeDTO" resultMap="empDTOResult">
+        SELECT
+        e.empID,
+        e.empName,
+        e.empGender,
+        e.empBirthday,
+        e.empPhone,
+        e.empEmail,
+        e.empAddress,
+        e.empStartDate,
+        e.empStatus,
+        t.teamName,
+        p.projectName,
+        (SELECT e2.empName
+        FROM Employee e2
+        WHERE e2.projectID = e.projectID
+        AND e2.isLeader = 1
+        LIMIT 1) AS leaderName
+        FROM Employee e
+        LEFT JOIN Team t ON e.teamID = t.teamID
+        LEFT JOIN Project p ON e.projectID = p.projectID
+    </select>
+    <insert id="insertEmployee" parameterType="Employee">
+        INSERT INTO Employee (
+        empID, empName, empGender, empBirthday,
+        empPhone, empEmail, empAddress, empStartDate,
+        empStatus, createBy, updateBy, createAt,
+        updateAt, teamID, projectID, isLeader
+        )
+        VALUES (
+        #{empID}, #{empName}, #{empGender}, #{empBirthday},
+        #{empPhone}, #{empEmail}, #{empAddress}, #{empStartDate},
+        #{empStatus}, #{createBy}, #{updateBy}, #{createAt},
+        #{updateAt}, #{teamID}, #{projectID}, #{isLeader}
+        )
+    </insert>
+    <update id="updateEmployee" parameterType="Employee">
+        UPDATE Employee
+        SET
+        empName = #{empName},
+        empGender = #{empGender},
+        empBirthday = #{empBirthday},
+        empPhone = #{empPhone},
+        empEmail = #{empEmail},
+        empAddress = #{empAddress},
+        empStartDate = #{empStartDate},
+        empStatus = #{empStatus},
+        updateBy = #{updateBy},
+        updateAt = #{updateAt},
+        teamID = #{teamID},
+        projectID = #{projectID},
+        WHERE
+        empID = #{empID}
+    </update>
+    <select id="getLastUserId" resultType="int">
+        SELECT MAX(empID) AS last_id
+        FROM Employee
+    </select>
+</mapper>
