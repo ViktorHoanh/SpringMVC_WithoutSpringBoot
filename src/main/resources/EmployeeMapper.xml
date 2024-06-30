@@ -60,6 +60,9 @@
         LEFT JOIN Team t ON e.teamID = t.teamID
         LEFT JOIN Project p ON e.projectID = p.projectID
     </select>
+    <select id="getEmployeeByID" resultType="Employee" resultMap="empResult">
+        select * from Employee WHERE empID = #{empID}
+    </select>
     <insert id="insertEmployee" parameterType="Employee">
         INSERT INTO Employee (
         empID, empName, empGender, empBirthday,
@@ -96,4 +99,16 @@
         SELECT MAX(empID) AS last_id
         FROM Employee
     </select>
+<!--    <delete id="deleteEmployees" parameterType="string">-->
+<!--        DELETE FROM employee-->
+<!--        WHERE empID IN #{ids}-->
+<!--    </delete>-->
+    <delete id="deleteEmployees" parameterType="list">
+        DELETE FROM employee
+        WHERE empID IN
+        <foreach item="id" index="index" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>

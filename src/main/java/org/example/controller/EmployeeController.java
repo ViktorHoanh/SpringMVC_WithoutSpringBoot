@@ -9,12 +9,10 @@ import org.example.entity.EmployeeModel;
 import org.example.entity.Project;
 import org.example.entity.Team;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -52,12 +50,26 @@ public class EmployeeController {
         return new ModelAndView(new RedirectView("/Mini-project-springmvc/listEmployee?username=" + username));
     }
 
-    @RequestMapping(value = "/deleteEmployees", method = RequestMethod.GET)
-    public ModelAndView deleteEmployees(@RequestParam("ids") List<Integer> employeeIDs,
-                                    @RequestParam("username") String username){
-        for (Integer employeeID : employeeIDs) {
-            System.out.println(employeeID);
-        }
+    @RequestMapping(value = "/deleteEmployees", method = RequestMethod.POST, consumes = "application/x-www-form-urlencoded" )
+    public ModelAndView deleteEmployees(@RequestParam("employeeIDs") List<Integer> employeeIDs,
+                                        @RequestParam("username") String username){
+        employeeMapper.deleteEmployee(employeeIDs);
         return new ModelAndView(new RedirectView("/Mini-project-springmvc/listEmployee?username=" + username));
     }
+
+    @RequestMapping(value = "/updateEmployee", method = RequestMethod.POST)
+    public ModelAndView updateEmployee(@ModelAttribute("employeeModel") EmployeeModel employeeModel,
+                                       @RequestParam("username") String username,
+                                       @RequestParam("empID") Integer empID){
+        employeeMapper.updateEmployee(employeeModel, username, empID);
+        return new ModelAndView(new RedirectView("/Mini-project-springmvc/listEmployee?username=" + username));
+    }
+
+    @RequestMapping(value = "/getEmployeeByID", method = RequestMethod.GET)
+    @ResponseBody
+    public Employee getEmployeeByID(@RequestParam("empID") Integer empID) {
+        System.out.println(employeeMapper.getEmployeeById(empID).toString());
+        return employeeMapper.getEmployeeById(empID);
+    }
+
 }

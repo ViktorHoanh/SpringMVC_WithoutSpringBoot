@@ -25,18 +25,21 @@
     <div class="filter">
         <label for="team">Team</label>
         <select name="team" id="team">
+            <option value="All">--All--</option>
             <c:forEach items="#{teamList}" var="t">
                 <option value="${t.teamID}">${t.teamName}</option>
             </c:forEach>
         </select>
         <label for="project">Project</label>
         <select name="project" id="project">
+            <option value="All">--All--</option>
             <c:forEach items="#{projectList}" var="p">
                 <option value="${p.projectName}">${p.projectName}</option>
             </c:forEach>
         </select>
         <label for="status">Status</label>
         <select name="status" id="status">
+            <option value="All">--All--</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
         </select>
@@ -100,7 +103,9 @@
                     <c:if test="${e.empStatus}">Active</c:if>
                     <c:if test="${!e.empStatus}">Inactive</c:if>
                 </th>
-                <th><i class="fa-regular fa-pen-to-square"></i></th>
+                <th onclick="getEmployeeByID('${e.empID}')">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                </th>
             </tr>
             </tbody>
         </c:forEach>
@@ -109,7 +114,24 @@
 <div class="popup-overlay"></div>
 <div class="popup">
     <p>Employee Information</p>
-    <form action="<c:url value="/addNewEmployee?username=${username}"/>" method="post" modelAttribute="employeeModel">
+    <input type="hidden" id="empID" name="empID" value="${empID}">
+    <c:url var="insertLink" value="/addNewEmployee">
+        <c:param name="username" value="${username}"/>
+    </c:url>
+    <c:url var="updateLink" value="/updateEmployee">
+        <c:param name="username" value="${username}"/>
+        <c:param name="empID" value="${empID}"/>
+    </c:url>
+    <form
+            <c:choose>
+                <c:when test="${not empty empID}">
+                    action="${updateLink}"
+                </c:when>
+                <c:otherwise>
+                    action="${insertLink}"
+                </c:otherwise>
+            </c:choose>
+            method="post" modelAttribute="employeeModel">
         <div class="empInformation">
             <label for="empName">Name</label>
             <input type="text" id="empName" name="empName" required>
@@ -148,9 +170,10 @@
             <input type="email" id="empEmail" name="empEmail" required>
         </div>
         <button onclick="closePopup()">Cancel</button>
-        <button type="submit">Save</button>
+        <button type="submit" onclick="resetEmpID()">Save</button>
     </form>
 </div>
+<script src="//code.jquery.com/jquery-3.5.1.min.js" ></script>
 <script type="text/javascript" src="/Mini-project-springmvc/getResource/js/listEmployee.js" ></script>
 <script>
     function deleteSelectedEmployees() {
@@ -164,13 +187,79 @@
         const confirmDelete = confirm('Are you sure to delete those employees');
         if (confirmDelete) {
             const employeeIDs = Array.from(checkedCheckboxes).map(checkbox => checkbox.id);
-            let deleteUrl = "<c:url value='/deleteEmployees'>
-            <c:param name='ids' value='" + employeeIDs.join(",") + "'/>
-            <c:param name='username' value='${username}'/>
-            </c:url>";
-            window.location.href = deleteUrl;
+
+            $.ajax({
+                type: "POST",
+                url: "<c:url value='/deleteEmployees'/>",
+                data: {
+                    employeeIDs: employeeIDs,
+                    username: "${username}"
+                },
+                success: function(response) {
+                    console.log(response);
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert("Cannot delete.");
+                }
+            });
         }
     }
+    function getEmployeeByID(empID) {
+        return $.ajax({
+            url: "<c:url value='/getEmployeeByID'/>",
+            type: "GET",
+            data: {
+                empID: empID
+            },
+            success: function(employee) {
+                console.log(employee);
+                document.getElementById('empID').value = empID;
+                showPopupWithData(employee);
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                console.error(`Cannot get emp: ${empID}`);
+            }
+        });
+    }
+    <%--function getEmployeeByID(employeeID) {--%>
+    <%--    console.log(`EMPID: ${employeeID}`);--%>
+    <%--    fetch(`/Mini-project-springmvc/getEmployeeByID?empID=${employeeID}`)--%>
+    <%--        .then(response => {--%>
+    <%--            if (!response.ok) {--%>
+    <%--                throw new Error(`Error retrieving employee with ID ${employeeID}`);--%>
+    <%--            }--%>
+    <%--            return response.json();--%>
+    <%--        })--%>
+    <%--        .then(employee => {--%>
+    <%--            console.log(employee);--%>
+    <%--            document.getElementById('empID').value = employeeID;--%>
+    <%--            showPopupWithData(employee);--%>
+    <%--        })--%>
+    <%--        .catch(error => {--%>
+    <%--            console.error(`Cannot get emp: ${employeeID}`, error);--%>
+    <%--        });--%>
+    <%--}--%>
+
+
+    function showPopupWithData(employee) {
+        console.log(employee);
+        showPopup();
+
+        document.getElementById('empName').value = employee.empName;
+        document.getElementById('empGender').value = employee.empGender ? 'Male' : 'Female';
+        document.getElementById('empPhone').value = employee.empPhone;
+        document.getElementById('empAddress').value = employee.empAddress;
+        document.getElementById('empBirthday').value = employee.empBirthday;
+        document.getElementById('empStartDate').value = employee.empStartDate;
+        document.getElementById('teamID').value = employee.teamID;
+        document.getElementById('projectID').value = employee.projectID;
+        document.getElementById('empStatus').checked = employee.empStatus;
+        document.getElementById('empEmail').value = employee.empEmail;
+    }
+
 </script>
 </body>
 </html>
